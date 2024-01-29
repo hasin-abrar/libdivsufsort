@@ -36,6 +36,7 @@ $ cmake -DCMAKE_BUILD_TYPE="Release" \
 ```
 4. Compile the package.
 ```shell
+$ sed -i 's/int32_t/int64_t/g' include/divsufsort.h
 $ make
 ```
 5. (Optional) Install the library and header files.
