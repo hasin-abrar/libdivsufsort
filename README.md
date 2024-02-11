@@ -19,9 +19,9 @@ the string.
 1. Get the source code from GitHub. You can either
     * use git to clone the repository
     ```
-    git clone https://github.com/y-256/libdivsufsort.git
+    git clone https://github.com/hasin-abrar/libdivsufsort.git
     ```
-    * or download a [zip file](../../archive/master.zip) directly
+    <!-- * or download a [zip file](../../archive/master.zip) directly -->
 2. Create a `build` directory in the package source directory.
 ```shell
 $ cd libdivsufsort

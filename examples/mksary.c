@@ -129,23 +129,80 @@ main(int argc, const char *argv[]) {
     needclose ^= 2;
   }
 
-  /* Get the file size. */
-  if(LFS_FSEEK(fp, 0, SEEK_END) == 0) {
-    n = LFS_FTELL(fp);
-    rewind(fp);
-    if(n < 0) {
-      fprintf(stderr, "%s: Cannot ftell `%s': ", argv[0], fname);
-      perror(NULL);
-      exit(EXIT_FAILURE);
-    }
-    // if(0x7fffffff <= n) {
-    //   fprintf(stderr, "%s: Input file `%s' is too big.\n", argv[0], fname);
-    //   exit(EXIT_FAILURE);
-    // }
-  } else {
-    fprintf(stderr, "%s: Cannot fseek `%s': ", argv[0], fname);
-    perror(NULL);
-    exit(EXIT_FAILURE);
+  // Skip the first line by reading until newline character
+  // the first line is the header of the fasta file
+  int c;
+  while ((c = fgetc(fp)) != EOF && c != '\n') {
+      // Skip characters until newline or end of file
+  }
+
+  // // // Check if we reached the end of file prematurely
+  if (c == EOF) {
+      fprintf(stderr, "File has less than two lines.\n");
+      fclose(fp);
+      return 1;
+  }
+
+  // // Seek to the current position to start reading
+  // if (fseek(fp, 0, SEEK_CUR) != 0) {
+  //     perror("fseek");
+  //     fclose(fp);
+  //     return 1;
+  // }
+
+  // Get the current position (start of the second line)
+  long long start_pos = LFS_FTELL(fp);
+  if (start_pos < 0) {
+      perror("ftello");
+      fclose(fp);
+      return 1;
+  }
+
+  // Seek to the beginning of the second line
+  if (fseek(fp, start_pos, SEEK_SET) != 0) {
+      perror("fseek");
+      fclose(fp);
+      return 1;
+  }
+
+  // Get the remaining file size from the current position
+  if (LFS_FSEEK(fp, 0, SEEK_END) != 0) {
+      perror("fseek");
+      fclose(fp);
+      return 1;
+  }
+  long long end_pos = LFS_FTELL(fp);
+  if (end_pos < 0) {
+      perror("ftello");
+      fclose(fp);
+      return 1;
+  }
+  n = end_pos - start_pos;
+  // /* Get the file size. */
+  // if(LFS_FSEEK(fp, 0, SEEK_END) == 0) {
+  //   n = LFS_FTELL(fp);
+  //   rewind(fp);
+  //   if(n < 0) {
+  //     fprintf(stderr, "%s: Cannot ftell `%s': ", argv[0], fname);
+  //     perror(NULL);
+  //     exit(EXIT_FAILURE);
+  //   }
+  //   // if(0x7fffffff <= n) {
+  //   //   fprintf(stderr, "%s: Input file `%s' is too big.\n", argv[0], fname);
+  //   //   exit(EXIT_FAILURE);
+  //   // }
+  // } else {
+  //   fprintf(stderr, "%s: Cannot fseek `%s': ", argv[0], fname);
+  //   perror(NULL);
+  //   exit(EXIT_FAILURE);
+  // }
+  printf("Size: %ld\n",n);
+
+  // Seek back to the start of the second line
+  if (fseek(fp, start_pos, SEEK_SET) != 0) {
+      perror("fseek");
+      fclose(fp);
+      return 1;
   }
 
   /* Allocate 5blocksize bytes of memory. */
